@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pihole
+  namespace: netboot-pihole
+  labels:
+    app: pihole
+    component: pihole
+    tier: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pihole
+      component: pihole
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: pihole
+        component: pihole
+        tier: frontend
+    spec:
+      containers:
+      - name: pihole
+        image: pihole/pihole
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 80
+          - containerPort: 53
+          - containerPort: 53
+            protocol: UDP
+          - containerPort: 67
+            protocol: UDP
+        livenessProbe:
+          httpGet:
+            path: /index.php
+            port: 80
+          initialDelaySeconds: 60
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /index.php
+            port: 80
+          initialDelaySeconds: 25
+          periodSeconds: 5
+        resources:
+          limits:
+            cpu: "250m"
+            memory: "1024Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+        volumeMounts:
+          - name: data
+            subPath: config
+            mountPath: /etc/pihole
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: pihole-data

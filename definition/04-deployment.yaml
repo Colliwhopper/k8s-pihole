@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
       - name: pihole
-        image: pihole/pihole
+        image: pihole/pihole:4.3.1-4
         imagePullPolicy: Always
         ports:
           - containerPort: 80
